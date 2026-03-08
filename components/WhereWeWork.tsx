@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Activity, Navigation } from 'lucide-react';
-import NigeriaMapSVG from './NigeriaMapSVG';
 
 const WhereWeWork: React.FC = () => {
   return (
@@ -93,12 +92,13 @@ const WhereWeWork: React.FC = () => {
             <div className="bg-white rounded-[2.5rem] overflow-hidden relative border border-gray-100 shadow-lg p-6">
               <div className="mb-4">
                 <h3 className="text-xl font-bold text-gray-900">Map of Nigeria</h3>
-                <p className="text-gray-500 text-sm mt-1 flex items-center gap-1">
-                  <span className="inline-block w-3 h-3 rounded-sm bg-[#008753]"></span>
-                  LTR active states
-                </p>
+                <p className="text-gray-500 text-sm mt-1">Highlighting our operational presence across 11 states</p>
               </div>
-              <NigeriaMapSVG className="w-full" />
+              <img
+                src="https://www.ltrnigeria.org/images/ltr-operations-map.jpg"
+                alt="Map of Nigeria showing LTR operational states"
+                className="w-full h-auto rounded-2xl object-contain"
+              />
             </div>
 
             {/* Accents */}
