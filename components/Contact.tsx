@@ -38,8 +38,8 @@ const Contact: React.FC = () => {
             <MessageSquare size={16} />
             <span className="uppercase tracking-wider">Get in Touch</span>
           </motion.div>
-          
-          <motion.h2 
+
+          <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -48,7 +48,7 @@ const Contact: React.FC = () => {
           >
             Contact <span className="text-[#008753]">Us</span>
           </motion.h2>
-          
+
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -61,7 +61,7 @@ const Contact: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 items-start">
-          
+
           {/* Contact Information */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
@@ -118,17 +118,7 @@ const Contact: React.FC = () => {
                 </div>
               </div>
             </div>
-            
-            {/* Map placeholder */}
-            <div className="bg-gray-200 rounded-3xl h-48 w-full overflow-hidden relative shadow-inner">
-              <img src="https://picsum.photos/id/1040/600/300" alt="Map Location" className="w-full h-full object-cover opacity-80 mix-blend-multiply" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-bold text-gray-800 shadow-lg flex items-center gap-2">
-                  <MapPin size={16} className="text-[#008753]" />
-                  View on Map
-                </div>
-              </div>
-            </div>
+
           </motion.div>
 
           {/* Contact Form */}
@@ -141,9 +131,9 @@ const Contact: React.FC = () => {
           >
             <div className="bg-white p-8 md:p-10 rounded-3xl shadow-lg border border-gray-100 relative">
               <div className="absolute top-0 right-0 w-32 h-32 bg-[#008753]/5 rounded-bl-[100px] -z-10"></div>
-              
+
               <h3 className="text-2xl font-bold text-gray-900 mb-6">Send us a message</h3>
-              
+
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
@@ -214,7 +204,7 @@ const Contact: React.FC = () => {
           </motion.div>
         </div>
       </div>
-      
+
       {/* Decorative Background */}
       <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-[#E67E22]/10 rounded-full blur-3xl -z-10"></div>
     </section>
