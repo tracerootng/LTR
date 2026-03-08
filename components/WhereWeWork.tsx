@@ -1,13 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Activity, Navigation } from 'lucide-react';
+import NigeriaMapSVG from './NigeriaMapSVG';
 
 const WhereWeWork: React.FC = () => {
   return (
     <section id="work" className="py-24 bg-white relative overflow-hidden">
       {/* Background Decor */}
       <div className="absolute top-0 left-0 w-full h-full bg-[#008753]/[0.02] -z-10"></div>
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <motion.div
@@ -19,8 +20,8 @@ const WhereWeWork: React.FC = () => {
             <MapPin size={16} />
             <span className="uppercase tracking-wider">Our Reach</span>
           </motion.div>
-          
-          <motion.h2 
+
+          <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -29,7 +30,7 @@ const WhereWeWork: React.FC = () => {
           >
             Where We Work
           </motion.h2>
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
@@ -48,7 +49,7 @@ const WhereWeWork: React.FC = () => {
             <p className="text-xl text-gray-700 leading-relaxed font-medium">
               Currently, LTR is implementing activities in <span className="text-[#008753] font-bold">11 States in Nigeria</span>.
             </p>
-            
+
             <div className="space-y-6">
               <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow relative overflow-hidden group">
                 <div className="absolute top-0 left-0 w-1.5 h-full bg-[#008753] transform origin-top scale-y-0 group-hover:scale-y-100 transition-transform duration-300"></div>
@@ -89,50 +90,47 @@ const WhereWeWork: React.FC = () => {
             className="relative"
           >
             {/* Map Visualization Container */}
-            <div className="aspect-square md:aspect-[4/3] bg-gray-50 rounded-[2.5rem] overflow-hidden relative border border-gray-200 shadow-inner flex items-center justify-center">
-              {/* Abstract Map Background */}
-              <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(#008753 2px, transparent 2px)', backgroundSize: '30px 30px' }}></div>
-              
-              <div className="text-center p-8 relative z-10 flex flex-col items-center">
-                <div className="relative mb-6">
-                  <div className="absolute inset-0 bg-[#008753] rounded-full blur-xl opacity-20 animate-pulse"></div>
-                  <div className="bg-white p-5 rounded-full shadow-lg relative">
-                    <MapPin className="w-12 h-12 text-[#008753]" />
-                  </div>
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-3">Map of Nigeria</h3>
-                <p className="text-gray-500 font-medium max-w-xs">
+            <div className="aspect-square md:aspect-[4/3] bg-[#f8faf9] rounded-[2.5rem] overflow-hidden relative border border-gray-100 shadow-sm flex items-center justify-center">
+
+              <div className="text-center p-8 absolute top-0 left-0 w-full z-10 flex flex-col items-center pointer-events-none">
+                <h3 className="text-2xl font-bold text-gray-900 mb-1">Map of Nigeria</h3>
+                <p className="text-gray-500 font-medium max-w-xs text-sm">
                   Highlighting our operational presence across 11 states
                 </p>
               </div>
-              
-              {/* Decorative map pins representing states */}
-              <div className="absolute top-[30%] left-[40%] group">
-                <div className="w-4 h-4 bg-[#008753] rounded-full shadow-[0_0_15px_rgba(0,135,83,0.6)] animate-pulse"></div>
+
+              {/* SVG Map of Nigeria */}
+              <div className="w-full h-full p-8 mt-12">
+                <NigeriaMapSVG className="w-full h-full object-contain drop-shadow-xl" />
+              </div>
+
+              {/* Decorative map pins representing states (Adjusted coordinates for SVG) */}
+              <div className="absolute top-[35%] left-[45%] group z-20">
+                <div className="w-3 h-3 bg-[#008753] rounded-full shadow-[0_0_10px_rgba(0,135,83,0.8)] animate-pulse"></div>
                 <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Kaduna</div>
               </div>
-              
-              <div className="absolute top-[45%] left-[55%] group">
-                <div className="w-4 h-4 bg-[#008753] rounded-full shadow-[0_0_15px_rgba(0,135,83,0.6)] animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+
+              <div className="absolute top-[48%] left-[58%] group z-20">
+                <div className="w-3 h-3 bg-[#008753] rounded-full shadow-[0_0_10px_rgba(0,135,83,0.8)] animate-pulse" style={{ animationDelay: '0.5s' }}></div>
                 <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Plateau</div>
               </div>
-              
-              <div className="absolute top-[55%] left-[45%] group">
-                <div className="w-4 h-4 bg-[#008753] rounded-full shadow-[0_0_15px_rgba(0,135,83,0.6)] animate-pulse" style={{ animationDelay: '1s' }}></div>
+
+              <div className="absolute top-[52%] left-[48%] group z-20">
+                <div className="w-3 h-3 bg-[#008753] rounded-full shadow-[0_0_10px_rgba(0,135,83,0.8)] animate-pulse" style={{ animationDelay: '1s' }}></div>
                 <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Nasarawa</div>
               </div>
-              
-              {/* Other generic pins */}
-              <div className="absolute top-[20%] left-[30%] w-3 h-3 bg-emerald-400 rounded-full opacity-60"></div>
-              <div className="absolute top-[40%] left-[25%] w-3 h-3 bg-emerald-400 rounded-full opacity-60"></div>
-              <div className="absolute top-[60%] left-[35%] w-3 h-3 bg-emerald-400 rounded-full opacity-60"></div>
-              <div className="absolute top-[70%] left-[50%] w-3 h-3 bg-emerald-400 rounded-full opacity-60"></div>
-              <div className="absolute top-[65%] left-[65%] w-3 h-3 bg-emerald-400 rounded-full opacity-60"></div>
-              <div className="absolute top-[35%] left-[70%] w-3 h-3 bg-emerald-400 rounded-full opacity-60"></div>
-              <div className="absolute top-[25%] left-[60%] w-3 h-3 bg-emerald-400 rounded-full opacity-60"></div>
-              <div className="absolute top-[50%] left-[75%] w-3 h-3 bg-emerald-400 rounded-full opacity-60"></div>
+
+              {/* Other generic pins representing the rest of the 11 states */}
+              <div className="absolute top-[25%] left-[35%] w-2 h-2 bg-emerald-500 rounded-full opacity-70 z-20"></div> {/* Sokoto/Zamfara area */}
+              <div className="absolute top-[28%] left-[55%] w-2 h-2 bg-emerald-500 rounded-full opacity-70 z-20"></div> {/* Kano/Jigawa area */}
+              <div className="absolute top-[38%] left-[70%] w-2 h-2 bg-emerald-500 rounded-full opacity-70 z-20"></div> {/* Borno/Yobe area */}
+              <div className="absolute top-[65%] left-[32%] w-2 h-2 bg-emerald-500 rounded-full opacity-70 z-20"></div> {/* Oyo/Osun area */}
+              <div className="absolute top-[75%] left-[42%] w-2 h-2 bg-emerald-500 rounded-full opacity-70 z-20"></div> {/* Edo/Delta area */}
+              <div className="absolute top-[70%] left-[55%] w-2 h-2 bg-emerald-500 rounded-full opacity-70 z-20"></div> {/* Enugu/Anambra area */}
+              <div className="absolute top-[80%] left-[52%] w-2 h-2 bg-emerald-500 rounded-full opacity-70 z-20"></div> {/* Rivers/Bayelsa area */}
+              <div className="absolute top-[55%] left-[65%] w-2 h-2 bg-emerald-500 rounded-full opacity-70 z-20"></div> {/* Taraba area */}
             </div>
-            
+
             {/* Accents */}
             <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-[#008753] rounded-full blur-[80px] opacity-20 -z-10"></div>
           </motion.div>
