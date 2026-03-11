@@ -24,10 +24,24 @@ const NAV_LINKS: NavItem[] = [
     ]
   },
   { 
-    label: 'Vacancies', 
-    href: '#',
+    label: 'Media', 
+    href: '/media',
     children: [
-      { label: 'Internships', href: '#' }
+      { label: 'Gallery', href: '/media#gallery' },
+      { label: 'Newsletters', href: '/media#newsletters' },
+      { label: 'Articles', href: '/media#articles' },
+      { label: 'Press Releases', href: '/media#press' },
+    ]
+  },
+  { 
+    label: 'Vacancies', 
+    href: '/vacancies',
+    children: [
+      { label: 'All Positions',  href: '/vacancies' },
+      { label: 'Program Roles',  href: '/vacancies?category=Program' },
+      { label: 'Admin & Finance', href: '/vacancies?category=Administration' },
+      { label: 'Medical Roles',  href: '/vacancies?category=Medical' },
+      { label: 'Operations',     href: '/vacancies?category=Operations' },
     ]
   },
   { label: 'Contact', href: '/contact' },
