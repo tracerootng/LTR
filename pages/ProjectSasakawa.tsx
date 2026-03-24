@@ -6,46 +6,46 @@ import { Link } from 'react-router-dom';
 const ProjectSasakawa: React.FC = () => {
   const foodImages = [
     {
-      src: "https://www.ltrnigeria.org/images/shf-project/bauchi/ba-3.jpg",
+      src: "/migrated_assets/images/shf-project/bauchi/ba-3.jpg",
       alt: "Bauchi: Alh Tijani, IDEA Secretary calling out beneficiaries of food items"
     },
     {
-      src: "https://www.ltrnigeria.org/images/shf-project/bauchi/ba-1.jpg",
+      src: "/migrated_assets/images/shf-project/bauchi/ba-1.jpg",
       alt: "Bauchi: Dr. Suleiman Abdullahi distributing food items to beneficiaries"
     },
     {
-      src: "https://www.ltrnigeria.org/images/shf-project/bauchi/ba-7.jpg",
+      src: "/migrated_assets/images/shf-project/bauchi/ba-7.jpg",
       alt: "Bauchi: Dr. Suleiman Abdullahi distributing food items to IDEA members"
     },
     {
-      src: "https://www.ltrnigeria.org/images/shf-project/bauchi/ba-4.jpg",
+      src: "/migrated_assets/images/shf-project/bauchi/ba-4.jpg",
       alt: "Bauchi: Mr. Yohanna Lawan, Representative of Leprosy & TB Control Programme, presenting food items to a beneficiary"
     },
     {
-      src: "https://www.ltrnigeria.org/images/shf-project/bauchi/ba-2.jpg",
+      src: "/migrated_assets/images/shf-project/bauchi/ba-2.jpg",
       alt: "Bauchi: Dr. Suleiman Abdullahi (LTR), Mr. Yohanna Lawan (BSTBLCP) with IDEA members"
     },
     {
-      src: "https://www.ltrnigeria.org/images/shf-project/kano/ka-2.jpg",
+      src: "/migrated_assets/images/shf-project/kano/ka-2.jpg",
       alt: "Kano: IDEA member receiving food item"
     },
     {
-      src: "https://www.ltrnigeria.org/images/shf-project/kano/ka-1.jpg",
+      src: "/migrated_assets/images/shf-project/kano/ka-1.jpg",
       alt: "Kano: Isyaku Abdullahi, IDEA Financial Secretary sensitizing IDEA Members during distribution of food items"
     },
     {
-      src: "https://www.ltrnigeria.org/images/shf-project/kano/ka-3.jpg",
+      src: "/migrated_assets/images/shf-project/kano/ka-3.jpg",
       alt: "Kano: Group picture of beneficiaries of food items"
     }
   ];
 
   const covidImages = [
     {
-      src: "https://www.ltrnigeria.org/images/shf-project/bauchi/ba-5.jpg",
+      src: "/migrated_assets/images/shf-project/bauchi/ba-5.jpg",
       alt: "Dr Suleiman, LTR with Beneficiaries of COVID-19 Preventive materials in Bauchi State"
     },
     {
-      src: "https://www.ltrnigeria.org/images/shf-project/bauchi/ba-6.jpg",
+      src: "/migrated_assets/images/shf-project/bauchi/ba-6.jpg",
       alt: "L-R IDEA Sec Gen Alh Tijani, IDEA Member and LTR M&E Officer, Dr. Suleiman Abdullahi during the distribution of COVID-19 preventive materials in Bauchi state"
     }
   ];
@@ -79,7 +79,7 @@ const ProjectSasakawa: React.FC = () => {
             className="rounded-2xl overflow-hidden shadow-lg border border-gray-100"
           >
             <img 
-              src="https://www.ltrnigeria.org/images/shf.jpg" 
+              src="/migrated_assets/images/shf.jpg" 
               alt="Sasakawa Project Banner" 
               className="w-full h-auto object-cover"
             />

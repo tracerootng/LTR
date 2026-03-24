@@ -124,28 +124,28 @@ const ProjectHackathon: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="rounded-2xl overflow-hidden shadow-sm border border-gray-100 aspect-video">
                 <img 
-                  src="https://www.ltrnigeria.org/images/hackathon/hackathon-ba1.jpg" 
+                  src="/migrated_assets/images/hackathon/hackathon-ba1.jpg" 
                   alt="Hackathon Training Session 1" 
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                 />
               </div>
               <div className="rounded-2xl overflow-hidden shadow-sm border border-gray-100 aspect-video">
                 <img 
-                  src="https://www.ltrnigeria.org/images/hackathon/hackathon-ba2.jpg" 
+                  src="/migrated_assets/images/hackathon/hackathon-ba2.jpg" 
                   alt="Hackathon Training Session 2" 
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                 />
               </div>
               <div className="rounded-2xl overflow-hidden shadow-sm border border-gray-100 aspect-video">
                 <img 
-                  src="https://www.ltrnigeria.org/images/hackathon/hackathon-ba3.jpg" 
+                  src="/migrated_assets/images/hackathon/hackathon-ba3.jpg" 
                   alt="Hackathon Training Session 3" 
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                 />
               </div>
               <div className="rounded-2xl overflow-hidden shadow-sm border border-gray-100 aspect-video">
                 <img 
-                  src="https://www.ltrnigeria.org/images/hackathon/hackathon-ba4.jpg" 
+                  src="/migrated_assets/images/hackathon/hackathon-ba4.jpg" 
                   alt="Hackathon Training Session 4" 
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                 />

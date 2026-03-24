@@ -6,47 +6,47 @@ import { Link } from 'react-router-dom';
 const ProjectSBC: React.FC = () => {
   const images = [
     {
-      src: "https://www.ltrnigeria.org/images/sm/PIX-1.jpg",
+      src: "/migrated_assets/images/sm/PIX-1.jpg",
       alt: "Mrs. Uko Itohowo Aquaowo- Head ACSM Unit, NTBLCP Abuja making her opening remark during the workshop for the development of SBC materials in Abuja"
     },
     {
-      src: "https://www.ltrnigeria.org/images/sm/PIX-2.jpg",
+      src: "/migrated_assets/images/sm/PIX-2.jpg",
       alt: "L-R, Mr. Adebayo Peters- Leprosy FP, NTBLC, Abuja; Dr. Tahir Dahiru, LTR Executive Director and Mr. Pius Sunday Ogbu, Head of Programs, TLMN, Abuja"
     },
     {
-      src: "https://www.ltrnigeria.org/images/sm/PIX-3.jpg",
+      src: "/migrated_assets/images/sm/PIX-3.jpg",
       alt: "Dr. Tahir Dahiru, LTR Executive Director giving his welcome address during the workshop for the development of leprosy SBC Materials in Abuja"
     },
     {
-      src: "https://www.ltrnigeria.org/images/sm/PIX-4.jpg",
+      src: "/migrated_assets/images/sm/PIX-4.jpg",
       alt: "Mrs. Uko Itohowo Aquaowo-Head ACSM Unit, NTBLCP making presentation during the workshop in Abuja"
     },
     {
-      src: "https://www.ltrnigeria.org/images/sm/PIX-5.jpg",
+      src: "/migrated_assets/images/sm/PIX-5.jpg",
       alt: "Development of Leprosy SBC Materials Workshop - A cross section of participants"
     },
     {
-      src: "https://www.ltrnigeria.org/images/sm/PIX-6.jpg",
+      src: "/migrated_assets/images/sm/PIX-6.jpg",
       alt: "Mr. Pius Sunday Ogbu, Head of Programs, TLMN, Abuja making contributions during the workshop in Abuja"
     },
     {
-      src: "https://www.ltrnigeria.org/images/sm/PIX-7.jpg",
+      src: "/migrated_assets/images/sm/PIX-7.jpg",
       alt: "Mr. Adebayo Peters- Leprosy FP, NTBLC, Abuja giving more insight to a drafted material during the workshop"
     },
     {
-      src: "https://www.ltrnigeria.org/images/sm/PIX-8.jpg",
+      src: "/migrated_assets/images/sm/PIX-8.jpg",
       alt: "Group Work - The team led by Dr. Suleiman Hudu Abdullahi-Head of Programs, LTR"
     },
     {
-      src: "https://www.ltrnigeria.org/images/sm/PIX-9.jpg",
+      src: "/migrated_assets/images/sm/PIX-9.jpg",
       alt: "Dr. Suleiman Hudu Abdullahi-Head of Programs, LTR & Mr. Pius Sunday Ogbu, Head of Programs, TLMN during the team’s group work"
     },
     {
-      src: "https://www.ltrnigeria.org/images/sm/PIX-10.jpg",
+      src: "/migrated_assets/images/sm/PIX-10.jpg",
       alt: "Group Work- The team led by Dr. Suleiman Hudu Abdullahi-Head of Programs, LTR"
     },
     {
-      src: "https://www.ltrnigeria.org/images/sm/PIX-11.jpg",
+      src: "/migrated_assets/images/sm/PIX-11.jpg",
       alt: "Group Photograph of Participants During the Workshop for the Development of SBC Materials in Abuja"
     }
   ];

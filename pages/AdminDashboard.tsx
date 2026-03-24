@@ -545,7 +545,7 @@ const AdminDashboard: React.FC = () => {
       <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-[#001A0B] flex flex-col transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         {/* Logo */}
         <div className="px-6 py-7 border-b border-white/8">
-          <img src="https://www.ltrnigeria.org/images/ltr-logo.png" alt="LTR Nigeria" className="h-10 object-contain" />
+          <img src="/migrated_assets/images/ltr-logo.png" alt="LTR Nigeria" className="h-10 object-contain" />
           <div className="flex items-center gap-2 mt-3">
             <Shield size={12} className="text-[#4ade80]" />
             <span className="text-xs text-gray-400 font-medium">Admin Dashboard</span>

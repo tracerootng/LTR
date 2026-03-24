@@ -5,27 +5,27 @@ const PartnersPage: React.FC = () => {
   const partners = [
     {
       name: "Federal Ministry of Health",
-      logo: "https://www.ltrnigeria.org/images/fmh_logo.jpg"
+      logo: "/migrated_assets/images/fmh_logo.jpg"
     },
     {
       name: "The Global Fund",
-      logo: "https://www.ltrnigeria.org/images/gfatm_logo.png"
+      logo: "/migrated_assets/images/gfatm_logo.png"
     },
     {
       name: "KNCV Tuberculosis Foundation",
-      logo: "https://www.ltrnigeria.org/images/kncv_logo.png"
+      logo: "/migrated_assets/images/kncv_logo.png"
     },
     {
       name: "Light for the World",
-      logo: "https://www.ltrnigeria.org/images/lftw_logo_.png"
+      logo: "/migrated_assets/images/lftw_logo_.png"
     },
     {
       name: "NLR",
-      logo: "https://www.ltrnigeria.org/images/NLRlogo.png"
+      logo: "/migrated_assets/images/NLRlogo.png"
     },
     {
       name: "National Tuberculosis and Leprosy Control Programme (NTBLCP)",
-      logo: "https://www.ltrnigeria.org/images/ntblcp_logo.png"
+      logo: "/migrated_assets/images/ntblcp_logo.png"
     }
   ];
 

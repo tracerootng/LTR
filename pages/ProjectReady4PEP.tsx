@@ -6,90 +6,90 @@ import { Link } from 'react-router-dom';
 const ProjectReady4PEP: React.FC = () => {
   const clwImages = [
     {
-      src: "https://www.ltrnigeria.org/images/r4p-project/clw1.jpg",
+      src: "/migrated_assets/images/r4p-project/clw1.jpg",
       alt: "Dr. Suleiman Abdullahi making presentation to CLWs in Bauchi State"
     },
     {
-      src: "https://www.ltrnigeria.org/images/r4p-project/clw2.jpg",
+      src: "/migrated_assets/images/r4p-project/clw2.jpg",
       alt: "Mr. Adamu Hadejia PM JSTBLCP making presentation to CLWs in Jigawa State"
     },
     {
-      src: "https://www.ltrnigeria.org/images/r4p-project/clw3.jpg",
+      src: "/migrated_assets/images/r4p-project/clw3.jpg",
       alt: "Dr. Suleiman Hudu Abdullahi guiding CLWs on the filling of Leprosy Reporting Tools"
     },
     {
-      src: "https://www.ltrnigeria.org/images/r4p-project/clw6.jpg",
+      src: "/migrated_assets/images/r4p-project/clw6.jpg",
       alt: "Dr. Tahir Dahiru putting participants through the process of filling the reporting tools in Jigawa State"
     },
     {
-      src: "https://www.ltrnigeria.org/images/r4p-project/clw7.jpg",
+      src: "/migrated_assets/images/r4p-project/clw7.jpg",
       alt: "A cross-section of participants during the training in Bauchi State"
     },
     {
-      src: "https://www.ltrnigeria.org/images/r4p-project/clw4.jpg",
+      src: "/migrated_assets/images/r4p-project/clw4.jpg",
       alt: "Dr. Tahir Dahiru, Executive Director LTR giving his remark during the Training of CLWs in Jigawa State"
     },
     {
-      src: "https://www.ltrnigeria.org/images/r4p-project/clw5.jpg",
+      src: "/migrated_assets/images/r4p-project/clw5.jpg",
       alt: "Group photograph of participants from Buji & Ringim LGAs of Jigawa State"
     },
     {
-      src: "https://www.ltrnigeria.org/images/r4p-project/clw9.jpg",
+      src: "/migrated_assets/images/r4p-project/clw9.jpg",
       alt: "Group Photograph with Participants from Misau LGA of Bauchi State"
     },
     {
-      src: "https://www.ltrnigeria.org/images/r4p-project/clw10.jpg",
+      src: "/migrated_assets/images/r4p-project/clw10.jpg",
       alt: "Group Photograph with Participants from Shira LGA of Bauchi State"
     }
   ];
 
   const mdtImages = [
     {
-      src: "https://www.ltrnigeria.org/images/r4p-project/mdt4.jpg",
+      src: "/migrated_assets/images/r4p-project/mdt4.jpg",
       alt: "Haruna Manyau of Bauchi State TB & Leprosy Control Program training MDT Officers on nerve palpation"
     },
     {
-      src: "https://www.ltrnigeria.org/images/r4p-project/mdt8.jpg",
+      src: "/migrated_assets/images/r4p-project/mdt8.jpg",
       alt: "Dr. Yakubu Gida PM BSTBLCP supervising a participant during the training of MDT Officers in the State"
     },
     {
-      src: "https://www.ltrnigeria.org/images/r4p-project/mdt9.jpg",
+      src: "/migrated_assets/images/r4p-project/mdt9.jpg",
       alt: "Dr. Tahir Dahiru supervising participants on diagnosis of a suspecting leprosy patient during the training of MDT Officers in Jigawa State"
     },
     {
-      src: "https://www.ltrnigeria.org/images/r4p-project/mdt10.jpg",
+      src: "/migrated_assets/images/r4p-project/mdt10.jpg",
       alt: "Dr. Tahir Dahiru having a demonstration on nerve palpation during the training of MDT Officers in Jigawa State"
     },
     {
-      src: "https://www.ltrnigeria.org/images/r4p-project/mdt11.jpg",
+      src: "/migrated_assets/images/r4p-project/mdt11.jpg",
       alt: "Dr. Tahir Dahiru having a demonstration on nerve palpation during the training of MDT Officers in Jigawa State"
     },
     {
-      src: "https://www.ltrnigeria.org/images/r4p-project/mdt12.jpg",
+      src: "/migrated_assets/images/r4p-project/mdt12.jpg",
       alt: "Dr. Suleiman Abdullahi taking the contact screening session in the training of MDT Officers in Bauchi State"
     },
     {
-      src: "https://www.ltrnigeria.org/images/r4p-project/mdt13.jpg",
+      src: "/migrated_assets/images/r4p-project/mdt13.jpg",
       alt: "Dr, Tahir Dahiru taking participants through the Voluntary Muscle Test (VMT) during the training of MDT Officers in Jigawa State"
     },
     {
-      src: "https://www.ltrnigeria.org/images/r4p-project/mdt14.jpg",
+      src: "/migrated_assets/images/r4p-project/mdt14.jpg",
       alt: "Dr. Tahir Dahiru supervising short demonstrating by participant during the training of MDT Officers in Jigawa State"
     },
     {
-      src: "https://www.ltrnigeria.org/images/r4p-project/mdt15.jpg",
+      src: "/migrated_assets/images/r4p-project/mdt15.jpg",
       alt: "Dr. Tahir Dahiru supervising of sensory test by participants during the training of MDT Officers"
     },
     {
-      src: "https://www.ltrnigeria.org/images/r4p-project/mdt16.jpg",
+      src: "/migrated_assets/images/r4p-project/mdt16.jpg",
       alt: "Dr. Tahir Dahiru showing participants the little finger out test of a suspecting leprosy patients during the MDT Training"
     },
     {
-      src: "https://www.ltrnigeria.org/images/r4p-project/mdt5.jpg",
+      src: "/migrated_assets/images/r4p-project/mdt5.jpg",
       alt: "Group photograph of participants from Shira LGA during the training of MDT Officers in Bauchi State"
     },
     {
-      src: "https://www.ltrnigeria.org/images/r4p-project/mdt6.jpg",
+      src: "/migrated_assets/images/r4p-project/mdt6.jpg",
       alt: "Group photograph of participants from Misau LGA during the training of MDT Officers in Bauchi State"
     }
   ];

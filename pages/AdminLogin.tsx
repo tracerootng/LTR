@@ -49,7 +49,7 @@ const AdminLogin: React.FC = () => {
             {/* Logo & header */}
             <div className="text-center mb-10">
               <img
-                src="https://www.ltrnigeria.org/images/ltr-logo.png"
+                src="/migrated_assets/images/ltr-logo.png"
                 alt="LTR Nigeria"
                 className="h-16 object-contain mx-auto mb-5"
               />

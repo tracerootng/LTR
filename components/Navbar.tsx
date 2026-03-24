@@ -65,7 +65,7 @@ const Navbar: React.FC = () => {
           <div className="flex items-center">
             <Link to="/">
               <img 
-                src="https://www.ltrnigeria.org/images/ltr-logo.png" 
+                src="/migrated_assets/images/ltr-logo.png" 
                 alt="LTR Nigeria Logo" 
                 className={`transition-all duration-300 ${scrolled ? 'h-12' : 'h-14 md:h-16'}`}
               />

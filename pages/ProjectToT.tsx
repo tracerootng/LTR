@@ -589,7 +589,7 @@ const ProjectToT: React.FC = () => {
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Picture Gallery</h2>
             <div className="rounded-2xl overflow-hidden shadow-lg border border-gray-100">
               <img 
-                src="https://www.ltrnigeria.org/images/r4p-project/tot/tot-group-pic.jpg" 
+                src="/migrated_assets/images/r4p-project/tot/tot-group-pic.jpg" 
                 alt="ToT Group Photograph" 
                 className="w-full h-auto object-cover"
               />

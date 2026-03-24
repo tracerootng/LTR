@@ -5,11 +5,11 @@ import { ArrowRight, Info, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const SLIDES = [
-  'https://www.ltrnigeria.org/img/1.jpg',
-  'https://www.ltrnigeria.org/img/2.jpg',
-  'https://www.ltrnigeria.org/img/3.jpg',
-  'https://www.ltrnigeria.org/img/4.jpg',
-  'https://www.ltrnigeria.org/img/5.jpg'
+  '/migrated_assets/img/1.jpg',
+  '/migrated_assets/img/2.jpg',
+  '/migrated_assets/img/3.jpg',
+  '/migrated_assets/img/4.jpg',
+  '/migrated_assets/img/5.jpg'
 ];
 
 const Hero: React.FC = () => {
@@ -44,7 +44,7 @@ const Hero: React.FC = () => {
           >
             <div className="inline-flex items-center space-x-2 bg-emerald-100 text-[#008753] px-3 py-1 rounded-full text-sm font-bold mb-6">
               <ShieldCheck size={16} />
-              <span>Certified NGO since 2018</span>
+              <span>Transforming Lives</span>
             </div>
 
             <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 leading-tight mb-6">

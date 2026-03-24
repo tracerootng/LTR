@@ -57,7 +57,7 @@ const AboutUs: React.FC = () => {
           >
             <div className="bg-gray-50 p-4 rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
               <img
-                src="https://www.ltrnigeria.org/images/ltr-organogram.jpg"
+                src="/migrated_assets/images/ltr-organogram.jpg"
                 alt="LTR Organizational Structure"
                 className="w-full h-auto rounded-2xl"
               />

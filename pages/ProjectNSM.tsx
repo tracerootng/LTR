@@ -6,59 +6,59 @@ import { Link } from 'react-router-dom';
 const ProjectNSM: React.FC = () => {
   const images = [
     {
-      src: "https://www.ltrnigeria.org/images/nsm/PIX-1.jpg",
+      src: "/migrated_assets/images/nsm/PIX-1.jpg",
       alt: "Dr. Chukwuma Anyaike, The National Coordinator, NTBLCP, Abuja delivering his opening remark during the stakeholders meeting in Abuja"
     },
     {
-      src: "https://www.ltrnigeria.org/images/nsm/PIX-2.jpg",
+      src: "/migrated_assets/images/nsm/PIX-2.jpg",
       alt: "L-R Dr. Chukwuma Anyaike-NC, NTBLCP, Abuja; Mr. Adebayo Peters-Leprosy FP, NTBLCP, Abuja and Mr. Pius Sunday Ogbu-Head of Program, TLMN Abuja during the READY4PEP National Stakeholders Meeting in Abuja"
     },
     {
-      src: "https://www.ltrnigeria.org/images/nsm/PIX-3.jpg",
+      src: "/migrated_assets/images/nsm/PIX-3.jpg",
       alt: "L-R Dr. Aliyu Ibrahim-READY4PEP External Evaluator and Dr. Tahir Dahiru- The Executive Director of LTR during the National Stakeholders meeting in Abuja"
     },
     {
-      src: "https://www.ltrnigeria.org/images/nsm/PIX-4.jpg",
+      src: "/migrated_assets/images/nsm/PIX-4.jpg",
       alt: "R-L Dr. Tahir Dahiru- The Executive Director of LTR; Dr. Aliyu Ibrahim-READY4PEP External Evaluator and Mr. Oluwole Akeredolu, Head of Finance, LTR, Jos"
     },
     {
-      src: "https://www.ltrnigeria.org/images/nsm/PIX-5.jpg",
+      src: "/migrated_assets/images/nsm/PIX-5.jpg",
       alt: "Dr. Ngozi Ekeke- Program Units, GLRA Enugu making a contribution during the National Stakeholders Meeting in Abuja"
     },
     {
-      src: "https://www.ltrnigeria.org/images/nsm/PIX-6.jpg",
+      src: "/migrated_assets/images/nsm/PIX-6.jpg",
       alt: "Group photograph of participants during the READY4PEP national stakeholders meeting in Abuja"
     },
     {
-      src: "https://www.ltrnigeria.org/images/nsm/PIX-7.jpg",
+      src: "/migrated_assets/images/nsm/PIX-7.jpg",
       alt: "Mr. Peter Lorkighir - President IDEA, Nigeria making contribution during the meeting in Abuja"
     },
     {
-      src: "https://www.ltrnigeria.org/images/nsm/PIX-8.jpg",
+      src: "/migrated_assets/images/nsm/PIX-8.jpg",
       alt: "Dr. Yakubu Gida Abdullahi- Bauchi State PM making contribution during the meeting in Abuja"
     },
     {
-      src: "https://www.ltrnigeria.org/images/nsm/PIX-9.jpg",
+      src: "/migrated_assets/images/nsm/PIX-9.jpg",
       alt: "Mr. Deji John Bodunde-Head of M&E Unit, LTR Jos making his presentation during the Meeting"
     },
     {
-      src: "https://www.ltrnigeria.org/images/nsm/PIX-10.jpg",
+      src: "/migrated_assets/images/nsm/PIX-10.jpg",
       alt: "Chinwe Eze- M & E Units, GLRA Enugu making her presentation during the meeting"
     },
     {
-      src: "https://www.ltrnigeria.org/images/nsm/PIX-11.jpg",
+      src: "/migrated_assets/images/nsm/PIX-11.jpg",
       alt: "Dr. Saminu Mshelia, Program Unit, TLMN Nigeria making his presentation during the Meeting"
     },
     {
-      src: "https://www.ltrnigeria.org/images/nsm/PIX-12.jpg",
+      src: "/migrated_assets/images/nsm/PIX-12.jpg",
       alt: "Dr. Suleiman Hudu Abdullahi-Head of Program, LTR Jos making a general presentation of the Project during the READY4PEP National Stakeholders meeting in Abuja"
     },
     {
-      src: "https://www.ltrnigeria.org/images/nsm/PIX-13.jpg",
+      src: "/migrated_assets/images/nsm/PIX-13.jpg",
       alt: "Dr. Tahir Dahiru- The Executive Director of LTR delivering his welcome address during the meeting in Abuja"
     },
     {
-      src: "https://www.ltrnigeria.org/images/nsm/PIX-14.jpg",
+      src: "/migrated_assets/images/nsm/PIX-14.jpg",
       alt: "Mr. Oluwole Akeredolu- Head of Finance, LTR Jos making his presentation during the meeting in Abuja"
     }
   ];

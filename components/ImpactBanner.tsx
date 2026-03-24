@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 
 const SLIDES = [
   {
-    image: 'https://www.ltrnigeria.org/images/collabo.jpg',
+    image: '/migrated_assets/images/collabo.jpg',
     title: 'Leprosy is curable, treatment is FREE.',
     subtitle: "Let's join hands together to restore hope and dignity to our brothers and sisters.",
     accent: 'emerald'

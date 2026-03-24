@@ -95,7 +95,7 @@ const WhereWeWork: React.FC = () => {
                 <p className="text-gray-500 text-sm mt-1">Highlighting our operational presence across 11 states</p>
               </div>
               <img
-                src="https://www.ltrnigeria.org/images/ltr-operations-map.jpg"
+                src="/migrated_assets/images/ltr-operations-map.jpg"
                 alt="Map of Nigeria showing LTR operational states"
                 className="w-full h-auto rounded-2xl object-contain"
               />

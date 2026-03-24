@@ -15,7 +15,7 @@ const Footer: React.FC = () => {
           <div className="space-y-6">
             <div className="flex items-center">
               <img 
-                src="https://www.ltrnigeria.org/images/ltr-logo.png" 
+                src="/migrated_assets/images/ltr-logo.png" 
                 alt="LTR Nigeria Logo" 
                 className="h-16 object-contain"
               />

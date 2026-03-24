@@ -8,14 +8,14 @@ const CARDS = [
   {
     title: "Support for Families",
     description: "Ensuring healthy children and grandchildren of former leprosy patients through education and medical care.",
-    image: "https://www.ltrnigeria.org/images/kids_of.jpg",
+    image: "/migrated_assets/images/kids_of.jpg",
     icon: <Users className="text-[#008753]" />,
     cta: "Learn More"
   },
   {
     title: "Become a Volunteer",
     description: "Your time and skills can make a massive difference in our field work and advocacy across 13 states.",
-    image: "https://www.ltrnigeria.org/img/17.jpg",
+    image: "/migrated_assets/img/17.jpg",
     icon: <HandHeart className="text-[#008753]" />,
     cta: "Join Today"
   },
