@@ -17,6 +17,9 @@ import ProjectReady4PEP from './pages/ProjectReady4PEP';
 import ProjectSasakawa from './pages/ProjectSasakawa';
 import PartnersPage from './pages/PartnersPage';
 import MediaPage from './pages/MediaPage';
+import ArticleDetail from './pages/ArticleDetail';
+import PressDetail from './pages/PressDetail';
+import NewsletterDetail from './pages/NewsletterDetail';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import VacanciesPage from './pages/VacanciesPage';
@@ -57,6 +60,9 @@ const App: React.FC = () => {
                 <Route path="/about" element={<About />} />
                 <Route path="/where-we-work" element={<WhereWeWorkPage />} />
                 <Route path="/media" element={<MediaPage />} />
+                <Route path="/media/article/:id" element={<ArticleDetail />} />
+                <Route path="/media/press/:id" element={<PressDetail />} />
+                <Route path="/media/newsletter/:id" element={<NewsletterDetail />} />
                 <Route path="/projects" element={<ProjectsPage />} />
                 <Route path="/projects/gc7" element={<ProjectGC7 />} />
                 <Route path="/projects/tot" element={<ProjectToT />} />

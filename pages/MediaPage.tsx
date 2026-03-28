@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Newspaper, Image, BookOpen, Megaphone, Download, ExternalLink, Calendar, User, Tag, ArrowRight, ChevronRight } from 'lucide-react';
 import { Newsletter, GalleryItem, Article, PressRelease, newsletterStore, galleryStore, articleStore, pressReleaseStore } from '../lib/mediaStore';
@@ -129,9 +129,9 @@ const NewsletterSection: React.FC<{ items: Newsletter[] }> = ({ items }) => (
           <p className="text-xs text-gray-400 flex items-center gap-1"><Calendar size={12} /> {new Date(nl.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
           <h3 className="font-bold text-gray-900 text-lg leading-tight group-hover:text-[#008753] transition-colors">{nl.title}</h3>
           <p className="text-gray-500 text-sm leading-relaxed flex-grow">{nl.description}</p>
-          <a href={nl.fileUrl} className="inline-flex items-center gap-2 bg-[#008753] hover:bg-[#006B42] text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors mt-2 w-fit">
-            <Download size={15} /> Download PDF
-          </a>
+          <Link to={`/media/newsletter/${nl.id}`} className="inline-flex items-center gap-2 bg-[#008753] hover:bg-[#006B42] text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors mt-2 w-fit">
+            Read Edition <ArrowRight size={15} />
+          </Link>
         </div>
       </motion.div>
     ))}
@@ -165,9 +165,9 @@ const ArticlesSection: React.FC<{ items: Article[] }> = ({ items }) => (
               </span>
             ))}
           </div>
-          <button className="self-start flex items-center gap-1 text-[#008753] text-sm font-semibold mt-2 group-hover:gap-2 transition-all">
+          <Link to={`/media/article/${article.id}`} className="self-start flex items-center gap-1 text-[#008753] text-sm font-semibold mt-2 group-hover:gap-2 transition-all">
             Read More <ArrowRight size={14} />
-          </button>
+          </Link>
         </div>
       </motion.div>
     ))}
@@ -200,9 +200,9 @@ const PressSection: React.FC<{ items: PressRelease[] }> = ({ items }) => (
             <p className="text-gray-500 text-sm leading-relaxed flex-grow">{pr.summary}</p>
             <div className="flex items-center gap-4 mt-2">
               <span className="text-xs text-gray-400">Source: <span className="font-medium text-gray-600">{pr.source}</span></span>
-              <button className="flex items-center gap-1 text-[#008753] text-sm font-semibold hover:underline">
+              <Link to={`/media/press/${pr.id}`} className="flex items-center gap-1 text-[#008753] text-sm font-semibold hover:underline">
                 View Full Release <ExternalLink size={13} />
-              </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -232,16 +232,34 @@ const MediaPage: React.FC = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [press, setPress] = useState<PressRelease[]>([]);
 
+  const [loading, setLoading] = useState(true);
+
   // Switch tab when hash changes (e.g. navigating from navbar dropdown)
   useEffect(() => {
     setActiveTab(hashToTab(location.hash));
   }, [location.hash]);
 
   useEffect(() => {
-    setNewsletters(newsletterStore.getAll().sort((a, b) => b.createdAt - a.createdAt));
-    setGallery(galleryStore.getAll().sort((a, b) => b.createdAt - a.createdAt));
-    setArticles(articleStore.getAll().sort((a, b) => b.createdAt - a.createdAt));
-    setPress(pressReleaseStore.getAll().sort((a, b) => b.createdAt - a.createdAt));
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [nl, gl, ar, pr] = await Promise.all([
+          newsletterStore.getAll(),
+          galleryStore.getAll(),
+          articleStore.getAll(),
+          pressReleaseStore.getAll()
+        ]);
+        setNewsletters(nl);
+        setGallery(gl);
+        setArticles(ar);
+        setPress(pr);
+      } catch (err) {
+        console.error('Error fetching media:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, []);
 
   return (
@@ -346,21 +364,30 @@ const MediaPage: React.FC = () => {
               )}
             </div>
 
-            {activeTab === 'gallery' && <GallerySection items={gallery} />}
-            {activeTab === 'newsletters' && <NewsletterSection items={newsletters} />}
-            {activeTab === 'articles' && <ArticlesSection items={articles} />}
-            {activeTab === 'press' && <PressSection items={press} />}
-
-            {/* Empty state */}
-            {((activeTab === 'gallery' && gallery.length === 0) ||
-              (activeTab === 'newsletters' && newsletters.length === 0) ||
-              (activeTab === 'articles' && articles.length === 0) ||
-              (activeTab === 'press' && press.length === 0)) && (
+            {loading ? (
               <div className="text-center py-24 text-gray-400">
-                <div className="text-6xl mb-4">📂</div>
-                <p className="text-lg font-medium">No content yet</p>
-                <p className="text-sm">Check back soon or add content via the admin dashboard.</p>
+                <div className="animate-spin w-8 h-8 border-4 border-[#008753]/20 border-t-[#008753] rounded-full mx-auto mb-4" />
+                <p className="text-sm font-medium">Loading content...</p>
               </div>
+            ) : (
+              <>
+                {activeTab === 'gallery' && <GallerySection items={gallery} />}
+                {activeTab === 'newsletters' && <NewsletterSection items={newsletters} />}
+                {activeTab === 'articles' && <ArticlesSection items={articles} />}
+                {activeTab === 'press' && <PressSection items={press} />}
+
+                {/* Empty state */}
+                {((activeTab === 'gallery' && gallery.length === 0) ||
+                  (activeTab === 'newsletters' && newsletters.length === 0) ||
+                  (activeTab === 'articles' && articles.length === 0) ||
+                  (activeTab === 'press' && press.length === 0)) && (
+                  <div className="text-center py-24 text-gray-400">
+                    <div className="text-6xl mb-4">📂</div>
+                    <p className="text-lg font-medium">No content yet</p>
+                    <p className="text-sm">Check back soon or add content via the admin dashboard.</p>
+                  </div>
+                )}
+              </>
             )}
           </motion.div>
         </AnimatePresence>

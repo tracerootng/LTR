@@ -1,4 +1,4 @@
-// Local storage-based data store for media content
+import { supabase } from './supabaseClient';
 
 export interface Newsletter {
   id: string;
@@ -43,101 +43,197 @@ export interface PressRelease {
   createdAt: number;
 }
 
-const genId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+// ─── File Upload Helper ──────────────────────────────────────────────────────────
+export const uploadFile = async (file: File, folder: string): Promise<string> => {
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
+  const filePath = `${folder}/${fileName}`;
 
-// ─── Generic CRUD helpers ────────────────────────────────────────────────────
+  const { error: uploadError } = await supabase.storage
+    .from('gallery')
+    .upload(filePath, file);
 
-function getAll<T>(key: string): T[] {
-  try {
-    return JSON.parse(localStorage.getItem(key) || '[]') as T[];
-  } catch {
-    return [];
+  if (uploadError) {
+    console.error('Upload Error:', uploadError);
+    throw uploadError;
   }
-}
 
-function saveAll<T>(key: string, items: T[]): void {
-  localStorage.setItem(key, JSON.stringify(items));
-}
+  const { data } = supabase.storage.from('gallery').getPublicUrl(filePath);
+  return data.publicUrl;
+};
+
+// ─── Generic DB Table helpers ──────────────────────────────────────────────────
+// Maps snake_case from DB to camelCase for UI, and parses dates to numbers for sorting backward compatibility
+const mapToCamelCase = (row: any) => {
+  const result: any = { ...row };
+  if (result.created_at) {
+    result.createdAt = new Date(result.created_at).getTime();
+    delete result.created_at;
+  }
+  if (result.file_url !== undefined) {
+    result.fileUrl = result.file_url;
+    delete result.file_url;
+  }
+  if (result.cover_image !== undefined) {
+    result.coverImage = result.cover_image;
+    delete result.cover_image;
+  }
+  if (result.image_url !== undefined) {
+    result.imageUrl = result.image_url;
+    delete result.image_url;
+  }
+  return result;
+};
+
+const mapToSnakeCase = (item: any) => {
+  const result: any = { ...item };
+  if (result.fileUrl !== undefined) {
+    result.file_url = result.fileUrl;
+    delete result.fileUrl;
+  }
+  if (result.coverImage !== undefined) {
+    result.cover_image = result.coverImage;
+    delete result.coverImage;
+  }
+  if (result.imageUrl !== undefined) {
+    result.image_url = result.imageUrl;
+    delete result.imageUrl;
+  }
+  return result;
+};
 
 // ─── Newsletters ─────────────────────────────────────────────────────────────
-const NL_KEY = 'ltr_newsletters';
 export const newsletterStore = {
-  getAll: (): Newsletter[] => getAll<Newsletter>(NL_KEY),
-  add: (item: Omit<Newsletter, 'id' | 'createdAt'>): Newsletter => {
-    const newItem: Newsletter = { ...item, id: genId(), createdAt: Date.now() };
-    saveAll(NL_KEY, [...newsletterStore.getAll(), newItem]);
-    return newItem;
+  getAll: async (): Promise<Newsletter[]> => {
+    const { data, error } = await supabase.from('newsletters').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    return (data || []).map(mapToCamelCase);
   },
-  update: (id: string, data: Partial<Newsletter>): void => {
-    saveAll(NL_KEY, newsletterStore.getAll().map(i => i.id === id ? { ...i, ...data } : i));
+  getById: async (id: string): Promise<Newsletter | null> => {
+    const { data, error } = await supabase.from('newsletters').select('*').eq('id', id).single();
+    if (error) throw error;
+    return data ? mapToCamelCase(data) : null;
   },
-  delete: (id: string): void => {
-    saveAll(NL_KEY, newsletterStore.getAll().filter(i => i.id !== id));
+  add: async (item: Omit<Newsletter, 'id' | 'createdAt'>): Promise<Newsletter> => {
+    const { data, error } = await supabase.from('newsletters').insert(mapToSnakeCase(item)).select().single();
+    if (error) throw error;
+    return mapToCamelCase(data);
+  },
+  update: async (id: string, updates: Partial<Newsletter>): Promise<void> => {
+    const { error } = await supabase.from('newsletters').update(mapToSnakeCase(updates)).eq('id', id);
+    if (error) throw error;
+  },
+  delete: async (id: string): Promise<void> => {
+    const { error } = await supabase.from('newsletters').delete().eq('id', id);
+    if (error) throw error;
   },
 };
 
 // ─── Gallery ─────────────────────────────────────────────────────────────────
-const GL_KEY = 'ltr_gallery';
 export const galleryStore = {
-  getAll: (): GalleryItem[] => getAll<GalleryItem>(GL_KEY),
-  add: (item: Omit<GalleryItem, 'id' | 'createdAt'>): GalleryItem => {
-    const newItem: GalleryItem = { ...item, id: genId(), createdAt: Date.now() };
-    saveAll(GL_KEY, [...galleryStore.getAll(), newItem]);
-    return newItem;
+  getAll: async (): Promise<GalleryItem[]> => {
+    const { data, error } = await supabase.from('gallery').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    return (data || []).map(mapToCamelCase);
   },
-  update: (id: string, data: Partial<GalleryItem>): void => {
-    saveAll(GL_KEY, galleryStore.getAll().map(i => i.id === id ? { ...i, ...data } : i));
+  add: async (item: Omit<GalleryItem, 'id' | 'createdAt'>): Promise<GalleryItem> => {
+    const { data, error } = await supabase.from('gallery').insert(mapToSnakeCase(item)).select().single();
+    if (error) throw error;
+    return mapToCamelCase(data);
   },
-  delete: (id: string): void => {
-    saveAll(GL_KEY, galleryStore.getAll().filter(i => i.id !== id));
+  update: async (id: string, updates: Partial<GalleryItem>): Promise<void> => {
+    const { error } = await supabase.from('gallery').update(mapToSnakeCase(updates)).eq('id', id);
+    if (error) throw error;
+  },
+  delete: async (id: string): Promise<void> => {
+    const { error } = await supabase.from('gallery').delete().eq('id', id);
+    if (error) throw error;
   },
 };
 
 // ─── Articles ─────────────────────────────────────────────────────────────────
-const AR_KEY = 'ltr_articles';
 export const articleStore = {
-  getAll: (): Article[] => getAll<Article>(AR_KEY),
-  add: (item: Omit<Article, 'id' | 'createdAt'>): Article => {
-    const newItem: Article = { ...item, id: genId(), createdAt: Date.now() };
-    saveAll(AR_KEY, [...articleStore.getAll(), newItem]);
-    return newItem;
+  getAll: async (): Promise<Article[]> => {
+    const { data, error } = await supabase.from('articles').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    return (data || []).map(mapToCamelCase);
   },
-  update: (id: string, data: Partial<Article>): void => {
-    saveAll(AR_KEY, articleStore.getAll().map(i => i.id === id ? { ...i, ...data } : i));
+  getById: async (id: string): Promise<Article | null> => {
+    const { data, error } = await supabase.from('articles').select('*').eq('id', id).single();
+    if (error) throw error;
+    return data ? mapToCamelCase(data) : null;
   },
-  delete: (id: string): void => {
-    saveAll(AR_KEY, articleStore.getAll().filter(i => i.id !== id));
+  add: async (item: Omit<Article, 'id' | 'createdAt'>): Promise<Article> => {
+    const { data, error } = await supabase.from('articles').insert(mapToSnakeCase(item)).select().single();
+    if (error) throw error;
+    return mapToCamelCase(data);
+  },
+  update: async (id: string, updates: Partial<Article>): Promise<void> => {
+    const { error } = await supabase.from('articles').update(mapToSnakeCase(updates)).eq('id', id);
+    if (error) throw error;
+  },
+  delete: async (id: string): Promise<void> => {
+    const { error } = await supabase.from('articles').delete().eq('id', id);
+    if (error) throw error;
   },
 };
 
 // ─── Press Releases ───────────────────────────────────────────────────────────
-const PR_KEY = 'ltr_press_releases';
 export const pressReleaseStore = {
-  getAll: (): PressRelease[] => getAll<PressRelease>(PR_KEY),
-  add: (item: Omit<PressRelease, 'id' | 'createdAt'>): PressRelease => {
-    const newItem: PressRelease = { ...item, id: genId(), createdAt: Date.now() };
-    saveAll(PR_KEY, [...pressReleaseStore.getAll(), newItem]);
-    return newItem;
+  getAll: async (): Promise<PressRelease[]> => {
+    const { data, error } = await supabase.from('press_releases').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    return (data || []).map(mapToCamelCase);
   },
-  update: (id: string, data: Partial<PressRelease>): void => {
-    saveAll(PR_KEY, pressReleaseStore.getAll().map(i => i.id === id ? { ...i, ...data } : i));
+  getById: async (id: string): Promise<PressRelease | null> => {
+    const { data, error } = await supabase.from('press_releases').select('*').eq('id', id).single();
+    if (error) throw error;
+    return data ? mapToCamelCase(data) : null;
   },
-  delete: (id: string): void => {
-    saveAll(PR_KEY, pressReleaseStore.getAll().filter(i => i.id !== id));
+  add: async (item: Omit<PressRelease, 'id' | 'createdAt'>): Promise<PressRelease> => {
+    const { data, error } = await supabase.from('press_releases').insert(mapToSnakeCase(item)).select().single();
+    if (error) throw error;
+    return mapToCamelCase(data);
+  },
+  update: async (id: string, updates: Partial<PressRelease>): Promise<void> => {
+    const { error } = await supabase.from('press_releases').update(mapToSnakeCase(updates)).eq('id', id);
+    if (error) throw error;
+  },
+  delete: async (id: string): Promise<void> => {
+    const { error } = await supabase.from('press_releases').delete().eq('id', id);
+    if (error) throw error;
   },
 };
 
-// Auth helpers
-const AUTH_KEY = 'ltr_admin_auth';
+// ─── Auth ───────────────────────────────────────────────────────────────────
 export const authStore = {
-  CREDENTIALS: { username: 'admin', password: 'LTR@Admin2025' },
-  login: (username: string, password: string): boolean => {
-    if (username === authStore.CREDENTIALS.username && password === authStore.CREDENTIALS.password) {
-      sessionStorage.setItem(AUTH_KEY, 'true');
-      return true;
+  login: async (usernameOrEmail: string, password: string): Promise<boolean> => {
+    // Map "admin" username to the correct email
+    const email = usernameOrEmail.toLowerCase() === 'admin' 
+      ? 'admin@ltrnigeria.org' 
+      : usernameOrEmail;
+      
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    
+    if (error) {
+      console.error('Login error:', error.message);
+      return false;
     }
-    return false;
+    return true;
   },
-  logout: (): void => sessionStorage.removeItem(AUTH_KEY),
-  isAuthenticated: (): boolean => sessionStorage.getItem(AUTH_KEY) === 'true',
+  logout: async (): Promise<void> => {
+    await supabase.auth.signOut();
+  },
+  // Use a synchronous check to avoid blank screen flashing before data loads
+  isAuthenticated: (): boolean => {
+    const token = localStorage.getItem('sb-xwfmqtjsccpmxzvqscdc-auth-token');
+    return !!token;
+  },
+  checkSession: async (): Promise<boolean> => {
+    const { data: { session } } = await supabase.auth.getSession();
+    return !!session;
+  }
 };

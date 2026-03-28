@@ -16,8 +16,8 @@ const AdminLogin: React.FC = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    await new Promise(r => setTimeout(r, 800)); // Simulate auth delay
-    if (authStore.login(username, password)) {
+    const success = await authStore.login(username, password);
+    if (success) {
       navigate('/admin/dashboard');
     } else {
       setError('Invalid username or password. Please try again.');

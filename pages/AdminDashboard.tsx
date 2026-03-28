@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Newspaper, Image, BookOpen, Megaphone,
   LogOut, Plus, Pencil, Trash2, X, Save, Search, ChevronDown,
   CheckCircle, AlertTriangle, ExternalLink, Shield, BarChart2,
-  Users, TrendingUp, Eye
+  Users, TrendingUp, Eye, Upload
 } from 'lucide-react';
 import {
   authStore,
@@ -13,6 +13,7 @@ import {
   galleryStore, GalleryItem,
   articleStore, Article,
   pressReleaseStore, PressRelease,
+  uploadFile
 } from '../lib/mediaStore';
 
 // ─── Sidebar sections ─────────────────────────────────────────────────────────
@@ -94,8 +95,52 @@ const Field: React.FC<{ label: string; required?: boolean; children: React.React
 const inputCls = "w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-[#008753] focus:ring-1 focus:ring-[#008753]/20 transition-all";
 const textareaCls = `${inputCls} min-h-[90px] resize-y`;
 
+// File Input component
+const FileUploadField: React.FC<{
+  label: string; 
+  accept?: string; 
+  onChange: (file: File | null) => void; 
+  previewUrl?: string;
+  currentValue?: string | File | null;
+}> = ({ label, accept, onChange, previewUrl, currentValue }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const getDisplayName = () => {
+    if (currentValue instanceof File) return currentValue.name;
+    if (typeof currentValue === 'string' && currentValue) return currentValue.split('/').pop()?.split('-').pop() || 'Existing File';
+    return 'No file selected';
+  };
+
+  return (
+    <Field label={label}>
+      <div className="flex items-center gap-3">
+        <button 
+          type="button" 
+          onClick={() => fileInputRef.current?.click()}
+          className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-4 py-2.5 rounded-xl text-sm transition-colors flex items-center gap-2"
+        >
+          <Upload size={16} /> Choose File
+        </button>
+        <span className="text-sm text-gray-500 truncate max-w-[200px]" title={getDisplayName()}>{getDisplayName()}</span>
+        <input 
+          type="file" 
+          ref={fileInputRef} 
+          accept={accept} 
+          onChange={(e) => onChange(e.target.files && e.target.files.length > 0 ? e.target.files[0] : null)}
+          className="hidden" 
+        />
+      </div>
+      {previewUrl && (
+        <div className="mt-3">
+          <img src={previewUrl} alt="preview" className="w-full h-36 object-cover rounded-xl border border-gray-100" />
+        </div>
+      )}
+    </Field>
+  );
+};
+
 // Delete confirm modal
-const DeleteConfirm: React.FC<{ name: string; onConfirm: () => void; onCancel: () => void }> = ({ name, onConfirm, onCancel }) => (
+const DeleteConfirm: React.FC<{ name: string; onConfirm: () => void; onCancel: () => void; loading?: boolean }> = ({ name, onConfirm, onCancel, loading }) => (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
     <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full text-center">
       <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -104,8 +149,10 @@ const DeleteConfirm: React.FC<{ name: string; onConfirm: () => void; onCancel: (
       <h3 className="font-bold text-gray-900 text-lg mb-2">Delete Item</h3>
       <p className="text-gray-500 text-sm mb-6">Are you sure you want to delete <strong>"{name}"</strong>? This cannot be undone.</p>
       <div className="flex gap-3">
-        <button onClick={onCancel} className="flex-1 border border-gray-200 text-gray-700 font-medium py-2.5 rounded-xl hover:bg-gray-50 transition-colors text-sm">Cancel</button>
-        <button onClick={onConfirm} className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-2.5 rounded-xl transition-colors text-sm">Delete</button>
+        <button onClick={onCancel} disabled={loading} className="flex-1 border border-gray-200 text-gray-700 font-medium py-2.5 rounded-xl hover:bg-gray-50 transition-colors text-sm disabled:opacity-50">Cancel</button>
+        <button onClick={onConfirm} disabled={loading} className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-2.5 rounded-xl transition-colors text-sm disabled:opacity-50">
+          {loading ? 'Deleting...' : 'Delete'}
+        </button>
       </div>
     </motion.div>
   </div>
@@ -184,23 +231,62 @@ const NewslettersSection: React.FC<{ toast: (m: string, t?: 'success' | 'error')
   const [modal, setModal] = useState<'add' | 'edit' | null>(null);
   const [editing, setEditing] = useState<Newsletter | null>(null);
   const [deleting, setDeleting] = useState<Newsletter | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  
   const empty = { title: '', description: '', date: '', fileUrl: '', coverImage: '' };
-  const [form, setForm] = useState(empty);
+  const [form, setForm] = useState<{
+    title: string; description: string; date: string; 
+    fileRef: File | string | null; coverRef: File | string | null;
+  }>({ title: '', description: '', date: '', fileRef: null, coverRef: null });
 
-  const reload = () => setItems(newsletterStore.getAll().sort((a, b) => b.createdAt - a.createdAt));
+  const reload = async () => {
+    setLoading(true);
+    try {
+      setItems(await newsletterStore.getAll());
+    } catch (e: any) { toast(e.message, 'error'); }
+    finally { setLoading(false); }
+  };
   useEffect(() => { reload(); }, []);
 
-  const openEdit = (item: Newsletter) => { setEditing(item); setForm({ title: item.title, description: item.description, date: item.date, fileUrl: item.fileUrl, coverImage: item.coverImage }); setModal('edit'); };
-  const openAdd = () => { setEditing(null); setForm(empty); setModal('add'); };
-  const save = () => {
+  const openEdit = (item: Newsletter) => { setEditing(item); setForm({ title: item.title, description: item.description, date: item.date, fileRef: item.fileUrl, coverRef: item.coverImage }); setModal('edit'); };
+  const openAdd = () => { setEditing(null); setForm({ title: '', description: '', date: '', fileRef: null, coverRef: null }); setModal('add'); };
+  
+  const save = async () => {
     if (!form.title || !form.date) { toast('Title and date are required.', 'error'); return; }
-    if (modal === 'add') { newsletterStore.add(form); toast('Newsletter added!'); }
-    else if (editing) { newsletterStore.update(editing.id, form); toast('Newsletter updated!'); }
-    setModal(null); reload();
+    
+    setSaving(true);
+    try {
+      let fileUrl = typeof form.fileRef === 'string' ? form.fileRef : '';
+      let coverImage = typeof form.coverRef === 'string' ? form.coverRef : '';
+      
+      if (form.fileRef instanceof File) fileUrl = await uploadFile(form.fileRef, 'newsletters/pdfs');
+      if (form.coverRef instanceof File) coverImage = await uploadFile(form.coverRef, 'newsletters/covers');
+      
+      const payload = { title: form.title, description: form.description, date: form.date, fileUrl, coverImage };
+      
+      if (modal === 'add') { await newsletterStore.add(payload); toast('Newsletter added!'); }
+      else if (editing) { await newsletterStore.update(editing.id, payload); toast('Newsletter updated!'); }
+      setModal(null); await reload();
+    } catch (e: any) {
+      toast(e.message || 'Error saving newsletter', 'error');
+    } finally {
+      setSaving(false);
+    }
   };
-  const confirmDelete = () => { if (deleting) { newsletterStore.delete(deleting.id); toast('Newsletter deleted.'); setDeleting(null); reload(); } };
+  
+  const confirmDelete = async () => { 
+    if (deleting) {
+      setSaving(true);
+      try {
+        await newsletterStore.delete(deleting.id); toast('Newsletter deleted.'); setDeleting(null); await reload(); 
+      } catch (e: any) { toast(e.message, 'error'); }
+      finally { setSaving(false); }
+    }
+  };
 
   const visible = items.filter(i => i.title.toLowerCase().includes(search.toLowerCase()));
+  const currCoverPrev = form.coverRef instanceof File ? URL.createObjectURL(form.coverRef) : typeof form.coverRef === 'string' ? form.coverRef : '';
 
   return (
     <div className="space-y-6">
@@ -217,44 +303,47 @@ const NewslettersSection: React.FC<{ toast: (m: string, t?: 'success' | 'error')
         <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search newsletters..." className={`${inputCls} pl-10`} />
       </div>
-      <div className="space-y-3">
-        {visible.map(item => (
-          <div key={item.id} className="bg-white border border-gray-100 rounded-2xl p-5 flex gap-4 items-center hover:shadow-sm transition-shadow">
-            <img src={item.coverImage} alt={item.title} className="w-16 h-16 rounded-xl object-cover flex-shrink-0 bg-gray-100" />
-            <div className="flex-grow min-w-0">
-              <h4 className="font-semibold text-gray-900 truncate">{item.title}</h4>
-              <p className="text-gray-500 text-xs mt-0.5 truncate">{item.description}</p>
-              <p className="text-gray-400 text-xs mt-1">{item.date}</p>
+      
+      {loading ? <div className="text-center py-10 text-gray-400">Loading...</div> : (
+        <div className="space-y-3">
+          {visible.map(item => (
+            <div key={item.id} className="bg-white border border-gray-100 rounded-2xl p-5 flex gap-4 items-center hover:shadow-sm transition-shadow">
+              <img src={item.coverImage || 'https://via.placeholder.com/150'} alt={item.title} className="w-16 h-16 rounded-xl object-cover flex-shrink-0 bg-gray-100" />
+              <div className="flex-grow min-w-0">
+                <h4 className="font-semibold text-gray-900 truncate">{item.title}</h4>
+                <p className="text-gray-500 text-xs mt-0.5 truncate">{item.description}</p>
+                <p className="text-gray-400 text-xs mt-1">{item.date}</p>
+              </div>
+              <div className="flex gap-2 flex-shrink-0">
+                <button onClick={() => openEdit(item)} className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-50 hover:bg-green-50 hover:text-[#008753] transition-colors"><Pencil size={14} /></button>
+                <button onClick={() => setDeleting(item)} className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-50 hover:bg-red-50 hover:text-red-500 transition-colors"><Trash2 size={14} /></button>
+              </div>
             </div>
-            <div className="flex gap-2 flex-shrink-0">
-              <button onClick={() => openEdit(item)} className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-50 hover:bg-green-50 hover:text-[#008753] transition-colors"><Pencil size={14} /></button>
-              <button onClick={() => setDeleting(item)} className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-50 hover:bg-red-50 hover:text-red-500 transition-colors"><Trash2 size={14} /></button>
-            </div>
-          </div>
-        ))}
-        {visible.length === 0 && <div className="text-center py-16 text-gray-400"><Newspaper size={32} className="mx-auto mb-3 opacity-40" /><p className="text-sm">No newsletters found</p></div>}
-      </div>
+          ))}
+          {visible.length === 0 && <div className="text-center py-16 text-gray-400"><Newspaper size={32} className="mx-auto mb-3 opacity-40" /><p className="text-sm">No newsletters found</p></div>}
+        </div>
+      )}
 
       <AnimatePresence>
         {modal && (
-          <Modal title={modal === 'add' ? 'Add Newsletter' : 'Edit Newsletter'} onClose={() => setModal(null)}>
+          <Modal title={modal === 'add' ? 'Add Newsletter' : 'Edit Newsletter'} onClose={() => !saving && setModal(null)}>
             <div className="space-y-4">
               <Field label="Title" required><input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} className={inputCls} placeholder="Newsletter title" /></Field>
               <Field label="Description"><textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} className={textareaCls} placeholder="Brief description..." /></Field>
-              <div className="grid grid-cols-2 gap-4">
-                <Field label="Date" required><input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} className={inputCls} /></Field>
-                <Field label="File URL"><input value={form.fileUrl} onChange={e => setForm(f => ({ ...f, fileUrl: e.target.value }))} className={inputCls} placeholder="PDF link" /></Field>
-              </div>
-              <Field label="Cover Image URL"><input value={form.coverImage} onChange={e => setForm(f => ({ ...f, coverImage: e.target.value }))} className={inputCls} placeholder="https://..." /></Field>
-              {form.coverImage && <img src={form.coverImage} alt="preview" className="w-full h-36 object-cover rounded-xl" />}
+              <Field label="Date" required><input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} className={inputCls} /></Field>
+              <FileUploadField label="PDF Document" accept="application/pdf" currentValue={form.fileRef} onChange={f => setForm(prev => ({...prev, fileRef: f}))} />
+              <FileUploadField label="Cover Image" accept="image/*" currentValue={form.coverRef} previewUrl={currCoverPrev} onChange={f => setForm(prev => ({...prev, coverRef: f}))} />
+              
               <div className="flex gap-3 pt-2">
-                <button onClick={() => setModal(null)} className="flex-1 border border-gray-200 text-gray-700 font-medium py-2.5 rounded-xl hover:bg-gray-50 text-sm">Cancel</button>
-                <button onClick={save} className="flex-1 bg-[#008753] hover:bg-[#006B42] text-white font-bold py-2.5 rounded-xl text-sm flex items-center justify-center gap-2"><Save size={14} /> Save</button>
+                <button disabled={saving} onClick={() => setModal(null)} className="flex-1 border border-gray-200 text-gray-700 font-medium py-2.5 rounded-xl hover:bg-gray-50 text-sm disabled:opacity-50">Cancel</button>
+                <button disabled={saving} onClick={save} className="flex-1 bg-[#008753] hover:bg-[#006B42] text-white font-bold py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 disabled:opacity-50">
+                  <Save size={14} /> {saving ? 'Saving...' : 'Save'}
+                </button>
               </div>
             </div>
           </Modal>
         )}
-        {deleting && <DeleteConfirm name={deleting.title} onConfirm={confirmDelete} onCancel={() => setDeleting(null)} />}
+        {deleting && <DeleteConfirm name={deleting.title} loading={saving} onConfirm={confirmDelete} onCancel={() => setDeleting(null)} />}
       </AnimatePresence>
     </div>
   );
@@ -267,23 +356,49 @@ const GallerySection: React.FC<{ toast: (m: string, t?: 'success' | 'error') => 
   const [modal, setModal] = useState<'add' | 'edit' | null>(null);
   const [editing, setEditing] = useState<GalleryItem | null>(null);
   const [deleting, setDeleting] = useState<GalleryItem | null>(null);
-  const empty = { title: '', description: '', imageUrl: '', category: '', date: '' };
-  const [form, setForm] = useState(empty);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  
+  const [form, setForm] = useState<{title: string; description: string; category: string; date: string; imageRef: File | string | null}>({
+    title: '', description: '', category: '', date: '', imageRef: null
+  });
 
-  const reload = () => setItems(galleryStore.getAll().sort((a, b) => b.createdAt - a.createdAt));
+  const reload = async () => {
+    setLoading(true);
+    try { setItems(await galleryStore.getAll()); } catch (e: any) { toast(e.message, 'error'); } finally { setLoading(false); }
+  };
   useEffect(() => { reload(); }, []);
 
-  const openEdit = (item: GalleryItem) => { setEditing(item); setForm({ title: item.title, description: item.description, imageUrl: item.imageUrl, category: item.category, date: item.date }); setModal('edit'); };
-  const openAdd = () => { setEditing(null); setForm(empty); setModal('add'); };
-  const save = () => {
-    if (!form.title || !form.imageUrl) { toast('Title and image URL are required.', 'error'); return; }
-    if (modal === 'add') { galleryStore.add(form); toast('Gallery item added!'); }
-    else if (editing) { galleryStore.update(editing.id, form); toast('Gallery item updated!'); }
-    setModal(null); reload();
+  const openEdit = (item: GalleryItem) => { setEditing(item); setForm({ title: item.title, description: item.description, category: item.category, date: item.date, imageRef: item.imageUrl }); setModal('edit'); };
+  const openAdd = () => { setEditing(null); setForm({ title: '', description: '', category: '', date: '', imageRef: null }); setModal('add'); };
+  
+  const save = async () => {
+    if (!form.title || !form.imageRef) { toast('Title and Image are required.', 'error'); return; }
+    
+    setSaving(true);
+    try {
+      let imageUrl = typeof form.imageRef === 'string' ? form.imageRef : '';
+      if (form.imageRef instanceof File) imageUrl = await uploadFile(form.imageRef, 'gallery/photos');
+      
+      const payload = { title: form.title, description: form.description, category: form.category, date: form.date, imageUrl };
+      if (modal === 'add') { await galleryStore.add(payload); toast('Gallery item added!'); }
+      else if (editing) { await galleryStore.update(editing.id, payload); toast('Gallery item updated!'); }
+      setModal(null); await reload();
+    } catch (e: any) { toast(e.message || 'Error saving gallery item', 'error'); }
+    finally { setSaving(false); }
   };
-  const confirmDelete = () => { if (deleting) { galleryStore.delete(deleting.id); toast('Item deleted.'); setDeleting(null); reload(); } };
+  
+  const confirmDelete = async () => {
+    if (deleting) {
+      setSaving(true);
+      try { await galleryStore.delete(deleting.id); toast('Item deleted.'); setDeleting(null); await reload(); }
+      catch (e: any) { toast(e.message, 'error'); }
+      finally { setSaving(false); }
+    }
+  };
 
   const visible = items.filter(i => i.title.toLowerCase().includes(search.toLowerCase()));
+  const currImgPrev = form.imageRef instanceof File ? URL.createObjectURL(form.imageRef) : typeof form.imageRef === 'string' ? form.imageRef : '';
 
   return (
     <div className="space-y-6">
@@ -300,49 +415,53 @@ const GallerySection: React.FC<{ toast: (m: string, t?: 'success' | 'error') => 
         <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search gallery..." className={`${inputCls} pl-10`} />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {visible.map(item => (
-          <div key={item.id} className="bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-md transition-shadow">
-            <div className="h-40 overflow-hidden bg-gray-50">
-              <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
-            </div>
-            <div className="p-4">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <h4 className="font-semibold text-gray-900 text-sm truncate">{item.title}</h4>
-                  <span className="text-xs bg-green-50 text-[#008753] font-medium px-2 py-0.5 rounded-full mt-1 inline-block">{item.category || 'Uncategorized'}</span>
-                </div>
-                <div className="flex gap-1.5 flex-shrink-0">
-                  <button onClick={() => openEdit(item)} className="w-7 h-7 flex items-center justify-center rounded-lg bg-gray-50 hover:bg-green-50 hover:text-[#008753] transition-colors"><Pencil size={13} /></button>
-                  <button onClick={() => setDeleting(item)} className="w-7 h-7 flex items-center justify-center rounded-lg bg-gray-50 hover:bg-red-50 hover:text-red-500 transition-colors"><Trash2 size={13} /></button>
+
+      {loading ? <div className="text-center py-10 text-gray-400">Loading...</div> : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {visible.map(item => (
+            <div key={item.id} className="bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-md transition-shadow">
+              <div className="h-40 overflow-hidden bg-gray-50">
+                <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
+              </div>
+              <div className="p-4">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <h4 className="font-semibold text-gray-900 text-sm truncate">{item.title}</h4>
+                    <span className="text-xs bg-green-50 text-[#008753] font-medium px-2 py-0.5 rounded-full mt-1 inline-block">{item.category || 'Uncategorized'}</span>
+                  </div>
+                  <div className="flex gap-1.5 flex-shrink-0">
+                    <button onClick={() => openEdit(item)} className="w-7 h-7 flex items-center justify-center rounded-lg bg-gray-50 hover:bg-green-50 hover:text-[#008753] transition-colors"><Pencil size={13} /></button>
+                    <button onClick={() => setDeleting(item)} className="w-7 h-7 flex items-center justify-center rounded-lg bg-gray-50 hover:bg-red-50 hover:text-red-500 transition-colors"><Trash2 size={13} /></button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
-        {visible.length === 0 && <div className="col-span-3 text-center py-16 text-gray-400"><Image size={32} className="mx-auto mb-3 opacity-40" /><p className="text-sm">No images found</p></div>}
-      </div>
+          ))}
+          {visible.length === 0 && <div className="col-span-3 text-center py-16 text-gray-400"><Image size={32} className="mx-auto mb-3 opacity-40" /><p className="text-sm">No images found</p></div>}
+        </div>
+      )}
 
       <AnimatePresence>
         {modal && (
-          <Modal title={modal === 'add' ? 'Add Gallery Image' : 'Edit Gallery Image'} onClose={() => setModal(null)}>
+          <Modal title={modal === 'add' ? 'Add Gallery Image' : 'Edit Gallery Image'} onClose={() => !saving && setModal(null)}>
             <div className="space-y-4">
               <Field label="Title" required><input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} className={inputCls} placeholder="Image title" /></Field>
               <Field label="Description"><textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} className={textareaCls} placeholder="Caption or description..." /></Field>
-              <Field label="Image URL" required><input value={form.imageUrl} onChange={e => setForm(f => ({ ...f, imageUrl: e.target.value }))} className={inputCls} placeholder="https://..." /></Field>
-              {form.imageUrl && <img src={form.imageUrl} alt="preview" className="w-full h-40 object-cover rounded-xl" />}
+              <FileUploadField label="Photo" accept="image/*" currentValue={form.imageRef} previewUrl={currImgPrev} onChange={f => setForm(prev => ({...prev, imageRef: f}))} />
               <div className="grid grid-cols-2 gap-4">
                 <Field label="Category"><input value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} className={inputCls} placeholder="e.g. Events" /></Field>
                 <Field label="Date"><input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} className={inputCls} /></Field>
               </div>
               <div className="flex gap-3 pt-2">
-                <button onClick={() => setModal(null)} className="flex-1 border border-gray-200 text-gray-700 font-medium py-2.5 rounded-xl hover:bg-gray-50 text-sm">Cancel</button>
-                <button onClick={save} className="flex-1 bg-[#008753] hover:bg-[#006B42] text-white font-bold py-2.5 rounded-xl text-sm flex items-center justify-center gap-2"><Save size={14} /> Save</button>
+                <button disabled={saving} onClick={() => setModal(null)} className="flex-1 border border-gray-200 text-gray-700 font-medium py-2.5 rounded-xl hover:bg-gray-50 text-sm disabled:opacity-50">Cancel</button>
+                <button disabled={saving} onClick={save} className="flex-1 bg-[#008753] hover:bg-[#006B42] text-white font-bold py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 disabled:opacity-50">
+                  <Save size={14} /> {saving ? 'Saving...' : 'Save'}
+                </button>
               </div>
             </div>
           </Modal>
         )}
-        {deleting && <DeleteConfirm name={deleting.title} onConfirm={confirmDelete} onCancel={() => setDeleting(null)} />}
+        {deleting && <DeleteConfirm name={deleting.title} loading={saving} onConfirm={confirmDelete} onCancel={() => setDeleting(null)} />}
       </AnimatePresence>
     </div>
   );
@@ -355,24 +474,52 @@ const ArticlesSection: React.FC<{ toast: (m: string, t?: 'success' | 'error') =>
   const [modal, setModal] = useState<'add' | 'edit' | null>(null);
   const [editing, setEditing] = useState<Article | null>(null);
   const [deleting, setDeleting] = useState<Article | null>(null);
-  const empty = { title: '', excerpt: '', content: '', author: '', date: '', coverImage: '', tags: [] as string[] };
-  const [form, setForm] = useState(empty);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const [form, setForm] = useState<{title: string; excerpt: string; content: string; author: string; date: string; coverRef: File | string | null}>({
+    title: '', excerpt: '', content: '', author: '', date: '', coverRef: null
+  });
   const [tagsInput, setTagsInput] = useState('');
 
-  const reload = () => setItems(articleStore.getAll().sort((a, b) => b.createdAt - a.createdAt));
+  const reload = async () => {
+    setLoading(true);
+    try { setItems(await articleStore.getAll()); } catch (e: any) { toast(e.message, 'error'); } finally { setLoading(false); }
+  };
   useEffect(() => { reload(); }, []);
 
-  const openEdit = (item: Article) => { setEditing(item); setForm({ ...item }); setTagsInput(item.tags.join(', ')); setModal('edit'); };
-  const openAdd = () => { setEditing(null); setForm(empty); setTagsInput(''); setModal('add'); };
-  const save = () => {
+  const openEdit = (item: Article) => { setEditing(item); setForm({ ...item, coverRef: item.coverImage }); setTagsInput(item.tags.join(', ')); setModal('edit'); };
+  const openAdd = () => { setEditing(null); setForm({ title: '', excerpt: '', content: '', author: '', date: '', coverRef: null }); setTagsInput(''); setModal('add'); };
+  
+  const save = async () => {
     if (!form.title || !form.date) { toast('Title and date are required.', 'error'); return; }
     const tags = tagsInput.split(',').map(t => t.trim()).filter(Boolean);
-    if (modal === 'add') { articleStore.add({ ...form, tags }); toast('Article added!'); }
-    else if (editing) { articleStore.update(editing.id, { ...form, tags }); toast('Article updated!'); }
-    setModal(null); reload();
+    
+    setSaving(true);
+    try {
+      let coverImage = typeof form.coverRef === 'string' ? form.coverRef : '';
+      if (form.coverRef instanceof File) coverImage = await uploadFile(form.coverRef, 'articles/covers');
+      
+      const { coverRef, ...rest } = form;
+      const payload = { ...rest, tags, coverImage };
+      if (modal === 'add') { await articleStore.add(payload); toast('Article added!'); }
+      else if (editing) { await articleStore.update(editing.id, payload); toast('Article updated!'); }
+      setModal(null); await reload();
+    } catch (e: any) { toast(e.message || 'Error saving article', 'error'); }
+    finally { setSaving(false); }
   };
-  const confirmDelete = () => { if (deleting) { articleStore.delete(deleting.id); toast('Article deleted.'); setDeleting(null); reload(); } };
+  
+  const confirmDelete = async () => {
+    if (deleting) {
+      setSaving(true);
+      try { await articleStore.delete(deleting.id); toast('Article deleted.'); setDeleting(null); await reload(); }
+      catch (e: any) { toast(e.message, 'error'); }
+      finally { setSaving(false); }
+    }
+  };
+
   const visible = items.filter(i => i.title.toLowerCase().includes(search.toLowerCase()));
+  const currCoverPrev = form.coverRef instanceof File ? URL.createObjectURL(form.coverRef) : typeof form.coverRef === 'string' ? form.coverRef : '';
 
   return (
     <div className="space-y-6">
@@ -389,27 +536,30 @@ const ArticlesSection: React.FC<{ toast: (m: string, t?: 'success' | 'error') =>
         <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search articles..." className={`${inputCls} pl-10`} />
       </div>
-      <div className="space-y-3">
-        {visible.map(item => (
-          <div key={item.id} className="bg-white border border-gray-100 rounded-2xl p-5 flex gap-4 items-center hover:shadow-sm transition-shadow">
-            <img src={item.coverImage} alt={item.title} className="w-16 h-16 rounded-xl object-cover flex-shrink-0 bg-gray-100" />
-            <div className="flex-grow min-w-0">
-              <h4 className="font-semibold text-gray-900 truncate">{item.title}</h4>
-              <p className="text-gray-500 text-xs mt-0.5">By {item.author} · {item.date}</p>
-              <p className="text-gray-400 text-xs mt-1 truncate">{item.excerpt}</p>
+
+      {loading ? <div className="text-center py-10 text-gray-400">Loading...</div> : (
+        <div className="space-y-3">
+          {visible.map(item => (
+            <div key={item.id} className="bg-white border border-gray-100 rounded-2xl p-5 flex gap-4 items-center hover:shadow-sm transition-shadow">
+              <img src={item.coverImage || 'https://via.placeholder.com/150'} alt={item.title} className="w-16 h-16 rounded-xl object-cover flex-shrink-0 bg-gray-100" />
+              <div className="flex-grow min-w-0">
+                <h4 className="font-semibold text-gray-900 truncate">{item.title}</h4>
+                <p className="text-gray-500 text-xs mt-0.5">By {item.author} · {item.date}</p>
+                <p className="text-gray-400 text-xs mt-1 truncate">{item.excerpt}</p>
+              </div>
+              <div className="flex gap-2 flex-shrink-0">
+                <button onClick={() => openEdit(item)} className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-50 hover:bg-green-50 hover:text-[#008753] transition-colors"><Pencil size={14} /></button>
+                <button onClick={() => setDeleting(item)} className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-50 hover:bg-red-50 hover:text-red-500 transition-colors"><Trash2 size={14} /></button>
+              </div>
             </div>
-            <div className="flex gap-2 flex-shrink-0">
-              <button onClick={() => openEdit(item)} className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-50 hover:bg-green-50 hover:text-[#008753] transition-colors"><Pencil size={14} /></button>
-              <button onClick={() => setDeleting(item)} className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-50 hover:bg-red-50 hover:text-red-500 transition-colors"><Trash2 size={14} /></button>
-            </div>
-          </div>
-        ))}
-        {visible.length === 0 && <div className="text-center py-16 text-gray-400"><BookOpen size={32} className="mx-auto mb-3 opacity-40" /><p className="text-sm">No articles found</p></div>}
-      </div>
+          ))}
+          {visible.length === 0 && <div className="text-center py-16 text-gray-400"><BookOpen size={32} className="mx-auto mb-3 opacity-40" /><p className="text-sm">No articles found</p></div>}
+        </div>
+      )}
 
       <AnimatePresence>
         {modal && (
-          <Modal title={modal === 'add' ? 'Add Article' : 'Edit Article'} onClose={() => setModal(null)}>
+          <Modal title={modal === 'add' ? 'Add Article' : 'Edit Article'} onClose={() => !saving && setModal(null)}>
             <div className="space-y-4">
               <Field label="Title" required><input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} className={inputCls} placeholder="Article title" /></Field>
               <Field label="Excerpt"><textarea value={form.excerpt} onChange={e => setForm(f => ({ ...f, excerpt: e.target.value }))} className={textareaCls} placeholder="Short summary..." /></Field>
@@ -418,17 +568,18 @@ const ArticlesSection: React.FC<{ toast: (m: string, t?: 'success' | 'error') =>
                 <Field label="Author"><input value={form.author} onChange={e => setForm(f => ({ ...f, author: e.target.value }))} className={inputCls} placeholder="Author name" /></Field>
                 <Field label="Date" required><input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} className={inputCls} /></Field>
               </div>
-              <Field label="Cover Image URL"><input value={form.coverImage} onChange={e => setForm(f => ({ ...f, coverImage: e.target.value }))} className={inputCls} placeholder="https://..." /></Field>
-              {form.coverImage && <img src={form.coverImage} alt="preview" className="w-full h-36 object-cover rounded-xl" />}
+              <FileUploadField label="Cover Image" accept="image/*" currentValue={form.coverRef} previewUrl={currCoverPrev} onChange={f => setForm(prev => ({...prev, coverRef: f}))} />
               <Field label="Tags (comma-separated)"><input value={tagsInput} onChange={e => setTagsInput(e.target.value)} className={inputCls} placeholder="Leprosy, TB, Health" /></Field>
               <div className="flex gap-3 pt-2">
-                <button onClick={() => setModal(null)} className="flex-1 border border-gray-200 text-gray-700 font-medium py-2.5 rounded-xl hover:bg-gray-50 text-sm">Cancel</button>
-                <button onClick={save} className="flex-1 bg-[#008753] hover:bg-[#006B42] text-white font-bold py-2.5 rounded-xl text-sm flex items-center justify-center gap-2"><Save size={14} /> Save</button>
+                <button disabled={saving} onClick={() => setModal(null)} className="flex-1 border border-gray-200 text-gray-700 font-medium py-2.5 rounded-xl hover:bg-gray-50 text-sm disabled:opacity-50">Cancel</button>
+                <button disabled={saving} onClick={save} className="flex-1 bg-[#008753] hover:bg-[#006B42] text-white font-bold py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 disabled:opacity-50">
+                  <Save size={14} /> {saving ? 'Saving...' : 'Save'}
+                </button>
               </div>
             </div>
           </Modal>
         )}
-        {deleting && <DeleteConfirm name={deleting.title} onConfirm={confirmDelete} onCancel={() => setDeleting(null)} />}
+        {deleting && <DeleteConfirm name={deleting.title} loading={saving} onConfirm={confirmDelete} onCancel={() => setDeleting(null)} />}
       </AnimatePresence>
     </div>
   );
@@ -441,22 +592,51 @@ const PressSection: React.FC<{ toast: (m: string, t?: 'success' | 'error') => vo
   const [modal, setModal] = useState<'add' | 'edit' | null>(null);
   const [editing, setEditing] = useState<PressRelease | null>(null);
   const [deleting, setDeleting] = useState<PressRelease | null>(null);
-  const empty = { title: '', summary: '', content: '', date: '', source: '', coverImage: '' };
-  const [form, setForm] = useState(empty);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const reload = () => setItems(pressReleaseStore.getAll().sort((a, b) => b.createdAt - a.createdAt));
+  const [form, setForm] = useState<{title: string; summary: string; content: string; date: string; source: string; coverRef: File | string | null}>({
+    title: '', summary: '', content: '', date: '', source: '', coverRef: null
+  });
+
+  const reload = async () => {
+    setLoading(true);
+    try { setItems(await pressReleaseStore.getAll()); } catch (e: any) { toast(e.message, 'error'); } finally { setLoading(false); }
+  };
   useEffect(() => { reload(); }, []);
 
-  const openEdit = (item: PressRelease) => { setEditing(item); setForm({ ...item }); setModal('edit'); };
-  const openAdd = () => { setEditing(null); setForm(empty); setModal('add'); };
-  const save = () => {
+  const openEdit = (item: PressRelease) => { setEditing(item); setForm({ ...item, coverRef: item.coverImage }); setModal('edit'); };
+  const openAdd = () => { setEditing(null); setForm({ title: '', summary: '', content: '', date: '', source: '', coverRef: null }); setModal('add'); };
+  
+  const save = async () => {
     if (!form.title || !form.date) { toast('Title and date are required.', 'error'); return; }
-    if (modal === 'add') { pressReleaseStore.add(form); toast('Press release added!'); }
-    else if (editing) { pressReleaseStore.update(editing.id, form); toast('Press release updated!'); }
-    setModal(null); reload();
+    
+    setSaving(true);
+    try {
+      let coverImage = typeof form.coverRef === 'string' ? form.coverRef : '';
+      if (form.coverRef instanceof File) coverImage = await uploadFile(form.coverRef, 'press/covers');
+      
+      const { coverRef, ...rest } = form;
+      const payload = { ...rest, coverImage };
+      
+      if (modal === 'add') { await pressReleaseStore.add(payload); toast('Press release added!'); }
+      else if (editing) { await pressReleaseStore.update(editing.id, payload); toast('Press release updated!'); }
+      setModal(null); await reload();
+    } catch (e: any) { toast(e.message || 'Error saving press release', 'error'); }
+    finally { setSaving(false); }
   };
-  const confirmDelete = () => { if (deleting) { pressReleaseStore.delete(deleting.id); toast('Press release deleted.'); setDeleting(null); reload(); } };
+  
+  const confirmDelete = async () => {
+    if (deleting) {
+      setSaving(true);
+      try { await pressReleaseStore.delete(deleting.id); toast('Press release deleted.'); setDeleting(null); await reload(); }
+      catch (e: any) { toast(e.message, 'error'); }
+      finally { setSaving(false); }
+    }
+  };
+
   const visible = items.filter(i => i.title.toLowerCase().includes(search.toLowerCase()));
+  const currCoverPrev = form.coverRef instanceof File ? URL.createObjectURL(form.coverRef) : typeof form.coverRef === 'string' ? form.coverRef : '';
 
   return (
     <div className="space-y-6">
@@ -473,27 +653,30 @@ const PressSection: React.FC<{ toast: (m: string, t?: 'success' | 'error') => vo
         <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search press releases..." className={`${inputCls} pl-10`} />
       </div>
-      <div className="space-y-3">
-        {visible.map(item => (
-          <div key={item.id} className="bg-white border border-gray-100 rounded-2xl p-5 flex gap-4 items-center hover:shadow-sm transition-shadow">
-            <img src={item.coverImage} alt={item.title} className="w-16 h-16 rounded-xl object-cover flex-shrink-0 bg-gray-100" />
-            <div className="flex-grow min-w-0">
-              <h4 className="font-semibold text-gray-900 truncate">{item.title}</h4>
-              <p className="text-gray-500 text-xs mt-0.5">{item.source} · {item.date}</p>
-              <p className="text-gray-400 text-xs mt-1 truncate">{item.summary}</p>
+
+      {loading ? <div className="text-center py-10 text-gray-400">Loading...</div> : (
+        <div className="space-y-3">
+          {visible.map(item => (
+            <div key={item.id} className="bg-white border border-gray-100 rounded-2xl p-5 flex gap-4 items-center hover:shadow-sm transition-shadow">
+              <img src={item.coverImage || 'https://via.placeholder.com/150'} alt={item.title} className="w-16 h-16 rounded-xl object-cover flex-shrink-0 bg-gray-100" />
+              <div className="flex-grow min-w-0">
+                <h4 className="font-semibold text-gray-900 truncate">{item.title}</h4>
+                <p className="text-gray-500 text-xs mt-0.5">{item.source} · {item.date}</p>
+                <p className="text-gray-400 text-xs mt-1 truncate">{item.summary}</p>
+              </div>
+              <div className="flex gap-2 flex-shrink-0">
+                <button onClick={() => openEdit(item)} className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-50 hover:bg-green-50 hover:text-[#008753] transition-colors"><Pencil size={14} /></button>
+                <button onClick={() => setDeleting(item)} className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-50 hover:bg-red-50 hover:text-red-500 transition-colors"><Trash2 size={14} /></button>
+              </div>
             </div>
-            <div className="flex gap-2 flex-shrink-0">
-              <button onClick={() => openEdit(item)} className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-50 hover:bg-green-50 hover:text-[#008753] transition-colors"><Pencil size={14} /></button>
-              <button onClick={() => setDeleting(item)} className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-50 hover:bg-red-50 hover:text-red-500 transition-colors"><Trash2 size={14} /></button>
-            </div>
-          </div>
-        ))}
-        {visible.length === 0 && <div className="text-center py-16 text-gray-400"><Megaphone size={32} className="mx-auto mb-3 opacity-40" /><p className="text-sm">No press releases found</p></div>}
-      </div>
+          ))}
+          {visible.length === 0 && <div className="text-center py-16 text-gray-400"><Megaphone size={32} className="mx-auto mb-3 opacity-40" /><p className="text-sm">No press releases found</p></div>}
+        </div>
+      )}
 
       <AnimatePresence>
         {modal && (
-          <Modal title={modal === 'add' ? 'Add Press Release' : 'Edit Press Release'} onClose={() => setModal(null)}>
+          <Modal title={modal === 'add' ? 'Add Press Release' : 'Edit Press Release'} onClose={() => !saving && setModal(null)}>
             <div className="space-y-4">
               <Field label="Title" required><input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} className={inputCls} placeholder="Press release title" /></Field>
               <Field label="Summary"><textarea value={form.summary} onChange={e => setForm(f => ({ ...f, summary: e.target.value }))} className={textareaCls} placeholder="Brief summary..." /></Field>
@@ -502,16 +685,17 @@ const PressSection: React.FC<{ toast: (m: string, t?: 'success' | 'error') => vo
                 <Field label="Date" required><input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} className={inputCls} /></Field>
                 <Field label="Source"><input value={form.source} onChange={e => setForm(f => ({ ...f, source: e.target.value }))} className={inputCls} placeholder="LTR Communications" /></Field>
               </div>
-              <Field label="Cover Image URL"><input value={form.coverImage} onChange={e => setForm(f => ({ ...f, coverImage: e.target.value }))} className={inputCls} placeholder="https://..." /></Field>
-              {form.coverImage && <img src={form.coverImage} alt="preview" className="w-full h-36 object-cover rounded-xl" />}
+              <FileUploadField label="Cover Image" accept="image/*" currentValue={form.coverRef} previewUrl={currCoverPrev} onChange={f => setForm(prev => ({...prev, coverRef: f}))} />
               <div className="flex gap-3 pt-2">
-                <button onClick={() => setModal(null)} className="flex-1 border border-gray-200 text-gray-700 font-medium py-2.5 rounded-xl hover:bg-gray-50 text-sm">Cancel</button>
-                <button onClick={save} className="flex-1 bg-[#008753] hover:bg-[#006B42] text-white font-bold py-2.5 rounded-xl text-sm flex items-center justify-center gap-2"><Save size={14} /> Save</button>
+                <button disabled={saving} onClick={() => setModal(null)} className="flex-1 border border-gray-200 text-gray-700 font-medium py-2.5 rounded-xl hover:bg-gray-50 text-sm disabled:opacity-50">Cancel</button>
+                <button disabled={saving} onClick={save} className="flex-1 bg-[#008753] hover:bg-[#006B42] text-white font-bold py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 disabled:opacity-50">
+                  <Save size={14} /> {saving ? 'Saving...' : 'Save'}
+                </button>
               </div>
             </div>
           </Modal>
         )}
-        {deleting && <DeleteConfirm name={deleting.title} onConfirm={confirmDelete} onCancel={() => setDeleting(null)} />}
+        {deleting && <DeleteConfirm name={deleting.title} loading={saving} onConfirm={confirmDelete} onCancel={() => setDeleting(null)} />}
       </AnimatePresence>
     </div>
   );
@@ -526,16 +710,29 @@ const AdminDashboard: React.FC = () => {
   const [counts, setCounts] = useState({ newsletters: 0, gallery: 0, articles: 0, press: 0 });
 
   useEffect(() => {
-    if (!authStore.isAuthenticated()) { navigate('/admin'); return; }
-    setCounts({
-      newsletters: newsletterStore.getAll().length,
-      gallery: galleryStore.getAll().length,
-      articles: articleStore.getAll().length,
-      press: pressReleaseStore.getAll().length,
-    });
-  }, [section]);
+    let active = true;
+    const fetchCounts = async () => {
+      if (!authStore.isAuthenticated()) { navigate('/admin'); return; }
+      try {
+        const [nl, gl, ar, pr] = await Promise.all([
+          newsletterStore.getAll(),
+          galleryStore.getAll(),
+          articleStore.getAll(),
+          pressReleaseStore.getAll()
+        ]);
+        if (active) {
+          setCounts({ newsletters: nl.length, gallery: gl.length, articles: ar.length, press: pr.length });
+        }
+      } catch (e) { console.error('Error fetching overviews', e); }
+    };
+    fetchCounts();
+    return () => { active = false; };
+  }, [section, navigate]);
 
-  const handleLogout = () => { authStore.logout(); navigate('/admin'); };
+  const handleLogout = async () => { 
+    await authStore.logout(); 
+    navigate('/admin'); 
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
