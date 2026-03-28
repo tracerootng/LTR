@@ -119,7 +119,7 @@ const Navbar: React.FC = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden bg-white border-t border-gray-100 overflow-hidden"
+            className="lg:hidden bg-white border-t border-gray-100 overflow-y-auto max-h-[85vh]"
           >
             <div className="px-4 pt-4 pb-8 space-y-2">
               {NAV_LINKS.map((link) => (
